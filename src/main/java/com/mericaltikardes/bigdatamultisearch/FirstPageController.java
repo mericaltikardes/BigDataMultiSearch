@@ -3,6 +3,7 @@ package com.mericaltikardes.bigdatamultisearch;
 import com.jfoenix.controls.JFXButton;
 import com.mericaltikardes.bigdatamultisearch.controller.DetailsPageController;
 import com.mericaltikardes.bigdatamultisearch.data.Information;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -85,18 +86,11 @@ public class FirstPageController implements Initializable {
     @FXML
     private JFXButton btnBenzerlikThread;
     private Parent rootNode;
-    /*  @FXML
-      void btnGirisMulti(ActionEvent event) {
-
-      }*/
-
 
     @FXML
     void btnGiris(ActionEvent event) throws IOException {
+        int singleThreadExecuted = Integer.parseInt(txtThreadSayisiSingle.getText());
 
-        String fxmlPath = "second-page.fxml";
-        File file = new File(fxmlPath);
-        FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
 
         // System.out.println(file.exists()); // true veya false olmalı
      /*   try {
@@ -107,7 +101,6 @@ public class FirstPageController implements Initializable {
         // Parent rootNode= FXMLLoader.load(getClass().getResource("second-page.fxml"));
 
         //iki pencerenin communication u için
-        DetailsPageController yeniSayfaController = loader.getController();
         //Hashset için;
         //System.out.println(liste.getItems().get(0));
         //System.out.println(txtBenzerlikOrani.getText());
@@ -117,58 +110,52 @@ public class FirstPageController implements Initializable {
             HashSet productDistinct = new HashSet();
             productDistinct = DetailsPageController.distinctinColumnProduct(dataList);
             ObservableList<String> arrForProductNameDistinct = FXCollections.observableArrayList(productDistinct);
-            DetailsPageController.benzerleriBulProduct(dataList, arrForProductNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()));
+            DetailsPageController.benzerleriBulProduct(dataList, arrForProductNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()), singleThreadExecuted);
 
         } else if (liste.getSelectionModel().getSelectedItems().get(0).equals(liste.getItems().get(1))) {
             HashSet issueDistinct = new HashSet();
             issueDistinct = DetailsPageController.distinctinColumnIssue(dataList);
             ObservableList<String> arrForIssueNameDistinct = FXCollections.observableArrayList(issueDistinct);
-            DetailsPageController.benzerleriBulIssue(dataList, arrForIssueNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()));
+            DetailsPageController.benzerleriBulIssue(dataList, arrForIssueNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()), singleThreadExecuted);
         } else if (liste.getSelectionModel().getSelectedItems().get(0).equals(liste.getItems().get(2))) {
             HashSet companyDistinct = new HashSet();
             companyDistinct = DetailsPageController.distinctinColumnCompany(dataList);
             ObservableList<String> arrForCompanyNameDistinct = FXCollections.observableArrayList(companyDistinct);
-            DetailsPageController.benzerleriBulIssue(dataList, arrForCompanyNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()));
+            DetailsPageController.benzerleriBulIssue(dataList, arrForCompanyNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()), singleThreadExecuted);
         } else if (liste.getSelectionModel().getSelectedItems().get(0).equals(liste.getItems().get(3))) {
             HashSet stateDistinct = new HashSet();
             stateDistinct = DetailsPageController.distinctinColumnState(dataList);
             ObservableList<String> arrForCompanyNameDistinct = FXCollections.observableArrayList(stateDistinct);
-            DetailsPageController.benzerleriBulState(dataList, arrForCompanyNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()));
+            DetailsPageController.benzerleriBulState(dataList, arrForCompanyNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()), singleThreadExecuted);
         } else if (liste.getSelectionModel().getSelectedItems().get(0).equals(liste.getItems().get(4))) {
             HashSet zipCodeDistinct = new HashSet();
             zipCodeDistinct = DetailsPageController.distinctinColumnZipCode(dataList);
             ObservableList<String> arrForZipCodeNameDistinct = FXCollections.observableArrayList(zipCodeDistinct);
-            DetailsPageController.benzerleriBulZipCode(dataList, arrForZipCodeNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()));
+            DetailsPageController.benzerleriBulZipCode(dataList, arrForZipCodeNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()), singleThreadExecuted);
         } else if (liste.getSelectionModel().getSelectedItems().get(0).equals(liste.getItems().get(5))) {
             HashSet complaintIdDistinct = new HashSet();
             complaintIdDistinct = DetailsPageController.distinctinColumnComplaintId(dataList);
             ObservableList<String> arrForComplaintIdNameDistinct = FXCollections.observableArrayList(complaintIdDistinct);
-            DetailsPageController.benzerleriBulComplaintId(dataList, arrForComplaintIdNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()));
+            DetailsPageController.benzerleriBulComplaintId(dataList, arrForComplaintIdNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()), singleThreadExecuted);
         }
 
-        //
-        //
-        // System.out.println(Integer.parseInt(txtBenzerlikOrani.getText()));
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    rootNode = loader.load();
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-                Stage stage = new Stage();
-                Scene scene = new Scene(rootNode);
-                stage.setScene(scene);
-                stage.showAndWait();
-            }
-        }).run();
-     /*   rootNode = loader.load();
-        Stage stage = new Stage();
-        Scene scene = new Scene(rootNode);
-        stage.setScene(scene);
-        stage.showAndWait();*/
+//                String fxmlPath = "second-page.fxml";
+//                File file = new File(fxmlPath);
+//                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
+//
+//                DetailsPageController yeniSayfaController = loader.getController();
+//
+//                try {
+//                    rootNode = loader.load();
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
+//                Stage stage = new Stage();
+//                Scene scene = new Scene(rootNode);
+//                stage.setScene(scene);
+//                stage.showAndWait();
+
 
     }
 
@@ -179,7 +166,10 @@ public class FirstPageController implements Initializable {
         HashSet companyDistinct = new HashSet();
         companyDistinct = DetailsPageController.distinctinColumnCompany(dataList);
         ObservableList<String> arrForCompanyNameDistinct = FXCollections.observableArrayList(companyDistinct);
-        DetailsPageController.multiSearch(dataList, liste2.getSelectionModel().getSelectedItems().get(0), txtEsitlikMulti.getText(), Integer.parseInt(txtBenzerlikOraniMulti.getText()), liste3.getSelectionModel().getSelectedItems().get(0), liste4.getSelectionModel().getSelectedItems().get(0));
+        DetailsPageController.multiSearch(dataList, liste2.getSelectionModel().getSelectedItems().get(0),
+                txtEsitlikMulti.getText(), Integer.parseInt(txtBenzerlikOraniMulti.getText()),
+                liste3.getSelectionModel().getSelectedItems().get(0),
+                liste4.getSelectionModel().getSelectedItems().get(0));
         rootNode = loader.load();
         Stage stage = new Stage();
         Scene scene = new Scene(rootNode);
@@ -194,7 +184,7 @@ public class FirstPageController implements Initializable {
     private void readCSV() {
 
 
-        String CsvFile = "C:\\Users\\Meriç\\Desktop\\kiyas.csv";
+        String CsvFile = "C:\\Users\\Meriç\\Masaüstü\\kiyas.csv";
         String FieldDelimiter = ";";
 
         BufferedReader br;

@@ -2,21 +2,36 @@ package com.mericaltikardes.bigdatamultisearch.controller;
 
 import com.mericaltikardes.bigdatamultisearch.data.CompareDatas;
 import com.mericaltikardes.bigdatamultisearch.data.Information;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.ResourceBundle;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 //Yenisayfa Controller
 public class DetailsPageController implements Initializable {
+    @FXML
     public TableView<CompareDatas> tableView;
+
+
     public TableColumn colBenzerlik;
     public TableColumn colProduct2;
     public TableColumn colProduct1;
@@ -25,12 +40,11 @@ public class DetailsPageController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        tableView.setItems(compareData);
         colBenzerlik.setCellValueFactory(new PropertyValueFactory<>("Product1"));
         colProduct1.setCellValueFactory(new PropertyValueFactory<>("benzerlik"));
         colProduct2.setCellValueFactory(new PropertyValueFactory<>("Product2"));
-        tableView.setItems(compareData);
         compareData = FXCollections.observableArrayList();
-
     }
 
 
@@ -135,51 +149,89 @@ public class DetailsPageController implements Initializable {
         return hsetProductName;
     }
 
-    public static ObservableList<Information> benzerleriBulProduct(ObservableList<Information> inf, ObservableList<String> arrForProductNameDistinct, int BenzerlikOrani) {
+
+    public  static ObservableList<Information> benzerleriBulProduct(ObservableList<Information> inf, ObservableList<String> arrForProductNameDistinct, int BenzerlikOrani, int threadSayisi) {
         String temp;
         ObservableList<Information> geciciList = FXCollections.observableArrayList();
+        ExecutorService executorService = Executors.newFixedThreadPool(threadSayisi);
         //System.out.println(BenzerlikOrani);
-        int counter = 0;
-        int benzerlik = 0;
-        //Productun ilk değeri için
-        for (int i = 0; i < arrForProductNameDistinct.size(); i++) {
-            String[] gecici1 = (arrForProductNameDistinct.get(i).split(" "));
-            for (int j = 0; j < inf.size(); j++) {
-                //getproduct alınmış
-                String[] gecici2 = (inf.get(j).getProduct().split(" "));
-                int max = Math.max(gecici1.length, gecici2.length);
-                int min = Math.min(gecici1.length, gecici2.length);
-                for (int k = 0; k < max; k++) {
-                    for (int l = 0; l < min; l++) {
-                        if (gecici1.length >= gecici2.length) {
-                            if (gecici1[k].equals(gecici2[l])) {
-                                counter++;
-                            }
-                        } else if (gecici2[k].equals(gecici1[l])) {
+        Future<?> future = executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+                int counter = 0;
+                int benzerlik = 0;
+                //Productun ilk değeri için
+                for (int i = 0; i < arrForProductNameDistinct.size(); i++) {
+                    String[] gecici1 = (arrForProductNameDistinct.get(i).split(" "));
+                    for (int j = 0; j < inf.size(); j++) {
+                        //getproduct alınmış
+                        String[] gecici2 = (inf.get(j).getProduct().split(" "));
+                        int max = Math.max(gecici1.length, gecici2.length);
+                        int min = Math.min(gecici1.length, gecici2.length);
+                        for (int k = 0; k < max; k++) {
+                            for (int l = 0; l < min; l++) {
+                                if (gecici1.length >= gecici2.length) {
+                                    if (gecici1[k].equals(gecici2[l])) {
+                                        counter++;
+                                    }
+                                } else if (gecici2[k].equals(gecici1[l])) {
 
-                            counter++;
+                                    counter++;
+                                }
+
+                            }
+                        }
+                        if (counter >= max) counter = max;
+                        benzerlik = (int) (((float) counter / (float) max) * 100);
+                        if (benzerlik >= BenzerlikOrani) {
+                            // System.out.println(benzerlik + " " + arrForProductNameDistinct.get(i) + " " + inf.get(j).getProduct());
+                            CompareDatas record = new CompareDatas(arrForProductNameDistinct.get(i), inf.get(j).getProduct(), benzerlik);
+                            compareData.add(record);
+                            Information rec = new Information(inf.get(j).getProduct(), inf.get(j).getIssue(), inf.get(j).getCompany(), inf.get(j).getState(), inf.get(j).getZipCode(), inf.get(j).getComplaintId());
+                            System.out.println(rec);
+                            geciciList.add(rec);
+
+                            // System.out.println(Thread.currentThread().getName());
                         }
 
+                        //  System.out.println((int) benzerlik + " " + arrForProductNameDistinct.get(i) + " " + inf.get(j).getProduct());
+                        counter = 0;
                     }
-                }
-                if (counter >= max) counter = max;
-                benzerlik = (int) (((float) counter / (float) max) * 100);
-                if (benzerlik >= BenzerlikOrani) {
-                    // System.out.println(benzerlik + " " + arrForProductNameDistinct.get(i) + " " + inf.get(j).getProduct());
-                    CompareDatas record = new CompareDatas(arrForProductNameDistinct.get(i), inf.get(j).getProduct(), benzerlik);
-                    compareData.add(record);
-                    Information rec = new Information(inf.get(j).getProduct(), inf.get(j).getIssue(), inf.get(j).getCompany(), inf.get(j).getState(), inf.get(j).getZipCode(), inf.get(j).getComplaintId());
-                    System.out.println(rec);
-                    geciciList.add(rec);
+                    System.out.println(geciciList);
 
-                    // System.out.println(Thread.currentThread().getName());
-                }
 
-                //  System.out.println((int) benzerlik + " " + arrForProductNameDistinct.get(i) + " " + inf.get(j).getProduct());
-                counter = 0;
+                }
             }
-            System.out.println(geciciList);
+
+
+        });
+
+        try {
+            // işlem tamamlanana kadar bekle
+            future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
+
+// 2. sayfa yükleme işlemi
+        String fxmlPath = "/com/mericaltikardes/bigdatamultisearch/second-page.fxml";
+        File file = new File(fxmlPath);
+        FXMLLoader loader = new FXMLLoader(DetailsPageController.class.getResource(fxmlPath));
+        Parent rootNode;
+        try {
+            rootNode = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+// 2. sayfayı göster
+
+
+            Stage stage = new Stage();
+            Scene scene = new Scene(rootNode);
+            stage.setScene(scene);
+            stage.showAndWait();
+
         return geciciList;
 
     }//issue demek bu
@@ -199,7 +251,7 @@ public class DetailsPageController implements Initializable {
 
     public static ObservableList<Information> equalsData = FXCollections.observableArrayList();
 
-    public static ObservableList<Information> benzerleriBulIssue(ObservableList<Information> inf, ObservableList<String> arrForIssueNameDistinct, int BenzerlikOrani) {
+    public static ObservableList<Information> benzerleriBulIssue(ObservableList<Information> inf, ObservableList<String> arrForIssueNameDistinct, int BenzerlikOrani, int threadSayisi) {
         String temp;
         ObservableList<Information> geciciList = FXCollections.observableArrayList();
         System.out.println(BenzerlikOrani);
@@ -256,7 +308,7 @@ public class DetailsPageController implements Initializable {
         return hsetCompanyName;
     }
 
-    public static ObservableList<Information> benzerleriBulCompany(ObservableList<Information> inf, ObservableList<String> arrForCompanyNameDistinct, int BenzerlikOrani) {
+    public static ObservableList<Information> benzerleriBulCompany(ObservableList<Information> inf, ObservableList<String> arrForCompanyNameDistinct, int BenzerlikOrani, int threadSayisi) {
         String temp;
         ObservableList<Information> geciciList = FXCollections.observableArrayList();
 
@@ -314,7 +366,7 @@ public class DetailsPageController implements Initializable {
         return hsetStateName;
     }
 
-    public static ObservableList<Information> benzerleriBulState(ObservableList<Information> inf, ObservableList<String> arrForStateNameDistinct, int BenzerlikOrani) {
+    public static ObservableList<Information> benzerleriBulState(ObservableList<Information> inf, ObservableList<String> arrForStateNameDistinct, int BenzerlikOrani, int threadSayisi) {
         String temp;
         ObservableList<Information> geciciList = FXCollections.observableArrayList();
         System.out.println(BenzerlikOrani);
@@ -373,7 +425,7 @@ public class DetailsPageController implements Initializable {
         return hsetZipCodeName;
     }
 
-    public static ObservableList<Information> benzerleriBulZipCode(ObservableList<Information> inf, ObservableList<String> arrForZipCodeNameDistinct, int BenzerlikOrani) {
+    public static ObservableList<Information> benzerleriBulZipCode(ObservableList<Information> inf, ObservableList<String> arrForZipCodeNameDistinct, int BenzerlikOrani, int threadSayisi) {
         String temp;
         ObservableList<Information> geciciList = FXCollections.observableArrayList();
         System.out.println(BenzerlikOrani);
@@ -429,7 +481,7 @@ public class DetailsPageController implements Initializable {
         return hsetComplaintId;
     }
 
-    public static ObservableList<Information> benzerleriBulComplaintId(ObservableList<Information> inf, ObservableList<String> arrForComplaintIdNameDistinct, int BenzerlikOrani) {
+    public static ObservableList<Information> benzerleriBulComplaintId(ObservableList<Information> inf, ObservableList<String> arrForComplaintIdNameDistinct, int BenzerlikOrani, int threadSayisi) {
         String temp;
         ObservableList<Information> geciciList = FXCollections.observableArrayList();
         System.out.println(BenzerlikOrani);
