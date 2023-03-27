@@ -12,6 +12,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
 
@@ -30,63 +31,70 @@ import java.util.concurrent.Future;
 public class DetailsPageController implements Initializable {
     @FXML
     public TableView<CompareDatas> tableView;
-
-
     public TableColumn colBenzerlik;
     public TableColumn colProduct2;
     public TableColumn colProduct1;
     public static ObservableList<CompareDatas> compareData = FXCollections.observableArrayList();
 
+    @FXML
+    private TextField totalTime;
+    @FXML
+    private TextField threadCounter;
+
+    private static double time;
+    private static double thread;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         tableView.setItems(compareData);
+        totalTime.setText("Geçen süre:" + String.valueOf(time) + " Saniye");
+        threadCounter.setText(" Thread Sayisi:" + String.valueOf(thread));
         colBenzerlik.setCellValueFactory(new PropertyValueFactory<>("Product1"));
         colProduct1.setCellValueFactory(new PropertyValueFactory<>("benzerlik"));
         colProduct2.setCellValueFactory(new PropertyValueFactory<>("Product2"));
         compareData = FXCollections.observableArrayList();
     }
 
-
     public static void yazilmasiIstenen(ObservableList<Information> inf, String arananColumnIndeksi, String arananDeger, int benzerlikOrani, String aramaYapilmasiGrekenKolon, String yazilmasiIstenenKolon) {
+        int size = 4000;
 
         if (yazilmasiIstenenKolon.equals("Product")) {
-            for (int i = 0; i < 4000; i++) {
+            for (int i = 0; i < size; i++) {
                 CompareDatas record = new CompareDatas(arananDeger, equalsData.get(i).getProduct(), benzerlikOrani);
                 compareData.add(record);
                 System.out.println(compareData);
             }
         }
         if (yazilmasiIstenenKolon.equals("Issue")) {
-            for (int i = 0; i < 4000; i++) {
+            for (int i = 0; i < size; i++) {
                 CompareDatas record = new CompareDatas(arananDeger, equalsData.get(i).getIssue(), benzerlikOrani);
                 compareData.add(record);
                 System.out.println(compareData);
             }
         }
         if (yazilmasiIstenenKolon.equals("Company")) {
-            for (int i = 0; i < 4000; i++) {
+            for (int i = 0; i < size; i++) {
                 CompareDatas record = new CompareDatas(arananDeger, equalsData.get(i).getCompany(), benzerlikOrani);
                 compareData.add(record);
                 System.out.println(compareData);
             }
         }
         if (yazilmasiIstenenKolon.equals("State")) {
-            for (int i = 0; i < 4000; i++) {
+            for (int i = 0; i < size; i++) {
                 CompareDatas record = new CompareDatas(arananDeger, equalsData.get(i).getState(), benzerlikOrani);
                 compareData.add(record);
                 System.out.println(compareData);
             }
         }
         if (yazilmasiIstenenKolon.equals("ZipCode")) {
-            for (int i = 0; i < 4000; i++) {
+            for (int i = 0; i < size; i++) {
                 CompareDatas record = new CompareDatas(arananDeger, equalsData.get(i).getZipCode(), benzerlikOrani);
                 compareData.add(record);
                 System.out.println(compareData);
             }
         }
         if (yazilmasiIstenenKolon.equals("ComplaintId")) {
-            for (int i = 0; i < 4000; i++) {
+            for (int i = 0; i < size; i++) {
                 CompareDatas record = new CompareDatas(arananDeger, equalsData.get(i).getComplaintId(), benzerlikOrani);
                 compareData.add(record);
                 System.out.println(compareData);
@@ -150,10 +158,14 @@ public class DetailsPageController implements Initializable {
     }
 
 
-    public  static ObservableList<Information> benzerleriBulProduct(ObservableList<Information> inf, ObservableList<String> arrForProductNameDistinct, int BenzerlikOrani, int threadSayisi) {
+    public static ObservableList<Information> benzerleriBulProduct(ObservableList<Information> inf, ObservableList<String> arrForProductNameDistinct,
+                                                                   int BenzerlikOrani, int threadSayisi) {
+        thread = threadSayisi;
+        long startTime = System.nanoTime();
         String temp;
         ObservableList<Information> geciciList = FXCollections.observableArrayList();
         ExecutorService executorService = Executors.newFixedThreadPool(threadSayisi);
+
         //System.out.println(BenzerlikOrani);
         Future<?> future = executorService.submit(new Runnable() {
             @Override
@@ -198,12 +210,8 @@ public class DetailsPageController implements Initializable {
                         counter = 0;
                     }
                     System.out.println(geciciList);
-
-
                 }
             }
-
-
         });
 
         try {
@@ -212,27 +220,31 @@ public class DetailsPageController implements Initializable {
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);
         }
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime); // nanosaniye cinsinden süre
+        time = (double) duration / 1_000_000_000.0; // saniye cinsinden süre
 
 // 2. sayfa yükleme işlemi
         String fxmlPath = "/com/mericaltikardes/bigdatamultisearch/second-page.fxml";
         File file = new File(fxmlPath);
         FXMLLoader loader = new FXMLLoader(DetailsPageController.class.getResource(fxmlPath));
         Parent rootNode;
+
         try {
+
             rootNode = loader.load();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
 // 2. sayfayı göster
 
-
-            Stage stage = new Stage();
-            Scene scene = new Scene(rootNode);
-            stage.setScene(scene);
-            stage.showAndWait();
+        Stage stage = new Stage();
+        Scene scene = new Scene(rootNode);
+        stage.setScene(scene);
+        stage.showAndWait();
 
         return geciciList;
+
 
     }//issue demek bu
 

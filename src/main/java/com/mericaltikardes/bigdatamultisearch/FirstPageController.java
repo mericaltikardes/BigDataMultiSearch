@@ -46,11 +46,11 @@ public class FirstPageController implements Initializable {
     @FXML
     private ListView<String> liste4;
 
+
+
     @FXML
     public ListView<String> liste;
-    @FXML
-    //public  TextField txtBenzerlikOrani;
-    public JFXButton btnBenzerlikThread1;
+
 
     @FXML
     private TextField txtThreadSayisiSingle;
@@ -90,20 +90,6 @@ public class FirstPageController implements Initializable {
     @FXML
     void btnGiris(ActionEvent event) throws IOException {
         int singleThreadExecuted = Integer.parseInt(txtThreadSayisiSingle.getText());
-
-
-        // System.out.println(file.exists()); // true veya false olmalı
-     /*   try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }*/
-        // Parent rootNode= FXMLLoader.load(getClass().getResource("second-page.fxml"));
-
-        //iki pencerenin communication u için
-        //Hashset için;
-        //System.out.println(liste.getItems().get(0));
-        //System.out.println(txtBenzerlikOrani.getText());
         if (liste.getSelectionModel().getSelectedItems().get(0).equals(liste.getItems().get(0))) {
             System.out.println(Integer.parseInt(txtBenzerlikOraniSingle.getText()));
             DetailsPageController.distinctinColumnProduct(dataList);
@@ -138,24 +124,6 @@ public class FirstPageController implements Initializable {
             ObservableList<String> arrForComplaintIdNameDistinct = FXCollections.observableArrayList(complaintIdDistinct);
             DetailsPageController.benzerleriBulComplaintId(dataList, arrForComplaintIdNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()), singleThreadExecuted);
         }
-
-
-//                String fxmlPath = "second-page.fxml";
-//                File file = new File(fxmlPath);
-//                FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
-//
-//                DetailsPageController yeniSayfaController = loader.getController();
-//
-//                try {
-//                    rootNode = loader.load();
-//                } catch (IOException e) {
-//                    throw new RuntimeException(e);
-//                }
-//                Stage stage = new Stage();
-//                Scene scene = new Scene(rootNode);
-//                stage.setScene(scene);
-//                stage.showAndWait();
-
 
     }
 

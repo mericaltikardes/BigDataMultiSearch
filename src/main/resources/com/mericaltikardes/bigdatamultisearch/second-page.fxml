@@ -2,6 +2,8 @@
 
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mericaltikardes.bigdatamultisearch.controller.DetailsPageController">
@@ -13,5 +15,8 @@
                 <TableColumn fx:id="colBenzerlik" prefWidth="218.40005493164062" text="Sütun2" />
             </columns>
         </TableView>
+      <TextArea layoutX="658.0" layoutY="45.0" prefHeight="200.0" prefWidth="200.0" />
+      <TextField fx:id="threadCounter" layoutX="664.0" layoutY="71.0" prefHeight="26.0" prefWidth="188.0" text="Thread Sayısı:" />
+      <TextField fx:id="totalTime" layoutX="664.0" layoutY="171.0" prefHeight="26.0" prefWidth="188.0" text="Toplam Süre:" />
     </children>
 </AnchorPane>
