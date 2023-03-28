@@ -107,7 +107,7 @@ public class FirstPageController implements Initializable {
             HashSet companyDistinct = new HashSet();
             companyDistinct = DetailsPageController.distinctinColumnCompany(dataList);
             ObservableList<String> arrForCompanyNameDistinct = FXCollections.observableArrayList(companyDistinct);
-            DetailsPageController.benzerleriBulIssue(dataList, arrForCompanyNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()), singleThreadExecuted);
+            DetailsPageController.benzerleriBulCompany(dataList, arrForCompanyNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()), singleThreadExecuted);
         } else if (liste.getSelectionModel().getSelectedItems().get(0).equals(liste.getItems().get(3))) {
             HashSet stateDistinct = new HashSet();
             stateDistinct = DetailsPageController.distinctinColumnState(dataList);

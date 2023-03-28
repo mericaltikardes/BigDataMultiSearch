@@ -47,8 +47,8 @@ public class DetailsPageController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         tableView.setItems(compareData);
-        totalTime.setText("Geçen süre:" + String.valueOf(time) + " Saniye");
-        threadCounter.setText(" Thread Sayisi:" + String.valueOf(thread));
+        totalTime.setText("Geçen süre:" + time + " Saniye");
+        threadCounter.setText(" Thread Sayisi:" + (int) thread);
         colBenzerlik.setCellValueFactory(new PropertyValueFactory<>("Product1"));
         colProduct1.setCellValueFactory(new PropertyValueFactory<>("benzerlik"));
         colProduct2.setCellValueFactory(new PropertyValueFactory<>("Product2"));
@@ -56,7 +56,7 @@ public class DetailsPageController implements Initializable {
     }
 
     public static void yazilmasiIstenen(ObservableList<Information> inf, String arananColumnIndeksi, String arananDeger, int benzerlikOrani, String aramaYapilmasiGrekenKolon, String yazilmasiIstenenKolon) {
-        int size = 4000;
+        int size = inf.size();
 
         if (yazilmasiIstenenKolon.equals("Product")) {
             for (int i = 0; i < size; i++) {
@@ -263,51 +263,93 @@ public class DetailsPageController implements Initializable {
 
     public static ObservableList<Information> equalsData = FXCollections.observableArrayList();
 
-    public static ObservableList<Information> benzerleriBulIssue(ObservableList<Information> inf, ObservableList<String> arrForIssueNameDistinct, int BenzerlikOrani, int threadSayisi) {
+    public static ObservableList<Information> benzerleriBulIssue(ObservableList<Information> inf,
+                                                                 ObservableList<String> arrForIssueNameDistinct,
+                                                                 int BenzerlikOrani, int threadSayisi) {
+        thread = threadSayisi;
+        long startTime = System.nanoTime();
         String temp;
         ObservableList<Information> geciciList = FXCollections.observableArrayList();
-        System.out.println(BenzerlikOrani);
-        int counter = 0;
-        float benzerlik = 0;
-        //Productun ilk değeri için
-        for (int i = 0; i < arrForIssueNameDistinct.size(); i++) {
-            String[] gecici1 = (arrForIssueNameDistinct.get(i).split(" "));
-            for (int j = 0; j < inf.size(); j++) {
-                //getproduct alınmış
-                String[] gecici2 = (inf.get(j).getIssue().split(" "));
-                int max = Math.max(gecici1.length, gecici2.length);
-                int min = Math.min(gecici1.length, gecici2.length);
-                for (int k = 0; k < max; k++) {
-                    for (int l = 0; l < min; l++) {
-                        if (gecici1.length >= gecici2.length) {
-                            if (gecici1[k].equals(gecici2[l])) {
-                                counter++;
-                            }
-                        } else if (gecici2[k].equals(gecici1[l])) {
+        ExecutorService executorService = Executors.newFixedThreadPool(threadSayisi);
+        Future<?> future = executorService.submit(new Runnable() {
+            @Override
+            public void run() {
 
-                            counter++;
+
+                int counter = 0;
+                float benzerlik = 0;
+                //Productun ilk değeri için
+                for (int i = 0; i < arrForIssueNameDistinct.size(); i++) {
+                    String[] gecici1 = (arrForIssueNameDistinct.get(i).split(" "));
+                    for (int j = 0; j < inf.size(); j++) {
+                        //getproduct alınmış
+                        String[] gecici2 = (inf.get(j).getIssue().split(" "));
+                        int max = Math.max(gecici1.length, gecici2.length);
+                        int min = Math.min(gecici1.length, gecici2.length);
+                        for (int k = 0; k < max; k++) {
+                            for (int l = 0; l < min; l++) {
+                                if (gecici1.length >= gecici2.length) {
+                                    if (gecici1[k].equals(gecici2[l])) {
+                                        counter++;
+                                    }
+                                } else if (gecici2[k].equals(gecici1[l])) {
+
+                                    counter++;
+                                }
+
+                            }
+                        }
+                        if (counter >= max) counter = max;
+                        benzerlik = ((float) counter / (float) max) * 100;
+                        if (benzerlik >= BenzerlikOrani) {
+                            System.out.println(benzerlik + " " + arrForIssueNameDistinct.get(i) + " " + inf.get(j).getIssue());
+                            CompareDatas record1 = new CompareDatas(arrForIssueNameDistinct.get(i), inf.get(j).getIssue(), (int) benzerlik);
+                            compareData.add(record1);
+                            // System.out.println(Thread.currentThread().getName());
                         }
 
+                        //  System.out.println((int) benzerlik + " " + arrForProductNameDistinct.get(i) + " " + inf.get(j).getProduct());
+                        counter = 0;
                     }
                 }
-                if (counter >= max) counter = max;
-                benzerlik = ((float) counter / (float) max) * 100;
-                if (benzerlik >= BenzerlikOrani) {
-                    System.out.println(benzerlik + " " + arrForIssueNameDistinct.get(i) + " " + inf.get(j).getIssue());
-                    CompareDatas record1 = new CompareDatas(arrForIssueNameDistinct.get(i), inf.get(j).getIssue(), (int) benzerlik);
-                    compareData.add(record1);
-
-
-                    // System.out.println(Thread.currentThread().getName());
-                }
-
-                //  System.out.println((int) benzerlik + " " + arrForProductNameDistinct.get(i) + " " + inf.get(j).getProduct());
-                counter = 0;
             }
+        });
+        try {
+            // işlem tamamlanana kadar bekle
+            future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime); // nanosaniye cinsinden süre
+        time = (double) duration / 1_000_000_000.0; // saniye cinsinden süre
+
+// 2. sayfa yükleme işlemi
+        String fxmlPath = "/com/mericaltikardes/bigdatamultisearch/second-page.fxml";
+        File file = new File(fxmlPath);
+        FXMLLoader loader = new FXMLLoader(DetailsPageController.class.getResource(fxmlPath));
+        Parent rootNode;
+
+        try {
+
+            rootNode = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+// 2. sayfayı göster
+
+        Stage stage = new Stage();
+        Scene scene = new Scene(rootNode);
+        stage.setScene(scene);
+        stage.showAndWait();
+
         return geciciList;
 
-    }
+
+    }//issue demek bu
+
+
+
 
     public static HashSet distinctinColumnCompany(ObservableList<Information> infs) {
         ArrayList<String> arraylistForCompanyName = new ArrayList<>();
@@ -320,11 +362,17 @@ public class DetailsPageController implements Initializable {
         return hsetCompanyName;
     }
 
-    public static ObservableList<Information> benzerleriBulCompany(ObservableList<Information> inf, ObservableList<String> arrForCompanyNameDistinct, int BenzerlikOrani, int threadSayisi) {
+    public static ObservableList<Information> benzerleriBulCompany(ObservableList<Information> inf,
+                                                                   ObservableList<String> arrForCompanyNameDistinct,
+                                                                   int BenzerlikOrani, int threadSayisi) {
+        thread = threadSayisi;
+        long startTime = System.nanoTime();
         String temp;
         ObservableList<Information> geciciList = FXCollections.observableArrayList();
-
-        System.out.println(BenzerlikOrani);
+        ExecutorService executorService = Executors.newFixedThreadPool(threadSayisi);
+        Future<?> future = executorService.submit(new Runnable() {
+            @Override
+            public void run() {
         int counter = 0;
         float benzerlik = 0;
         //Productun ilk değeri için
@@ -362,8 +410,39 @@ public class DetailsPageController implements Initializable {
                 //  System.out.println((int) benzerlik + " " + arrForProductNameDistinct.get(i) + " " + inf.get(j).getProduct());
                 counter = 0;
             }
+        }}
+        });
+        try {
+            // işlem tamamlanana kadar bekle
+            future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime); // nanosaniye cinsinden süre
+        time = (double) duration / 1_000_000_000.0; // saniye cinsinden süre
+
+// 2. sayfa yükleme işlemi
+        String fxmlPath = "/com/mericaltikardes/bigdatamultisearch/second-page.fxml";
+        File file = new File(fxmlPath);
+        FXMLLoader loader = new FXMLLoader(DetailsPageController.class.getResource(fxmlPath));
+        Parent rootNode;
+
+        try {
+
+            rootNode = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+// 2. sayfayı göster
+
+        Stage stage = new Stage();
+        Scene scene = new Scene(rootNode);
+        stage.setScene(scene);
+        stage.showAndWait();
+
         return geciciList;
+
 
     }
 
@@ -379,9 +458,14 @@ public class DetailsPageController implements Initializable {
     }
 
     public static ObservableList<Information> benzerleriBulState(ObservableList<Information> inf, ObservableList<String> arrForStateNameDistinct, int BenzerlikOrani, int threadSayisi) {
+        thread = threadSayisi;
+        long startTime = System.nanoTime();
         String temp;
         ObservableList<Information> geciciList = FXCollections.observableArrayList();
-        System.out.println(BenzerlikOrani);
+        ExecutorService executorService = Executors.newFixedThreadPool(threadSayisi);
+        Future<?> future = executorService.submit(new Runnable() {
+            @Override
+            public void run() {
         int counter = 0;
         float benzerlik = 0;
         //Productun ilk değeri için
@@ -422,6 +506,37 @@ public class DetailsPageController implements Initializable {
                 }
             }
         }
+        }
+        });
+        try {
+            // işlem tamamlanana kadar bekle
+            future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
+        }
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime); // nanosaniye cinsinden süre
+        time = (double) duration / 1_000_000_000.0; // saniye cinsinden süre
+
+// 2. sayfa yükleme işlemi
+        String fxmlPath = "/com/mericaltikardes/bigdatamultisearch/second-page.fxml";
+        File file = new File(fxmlPath);
+        FXMLLoader loader = new FXMLLoader(DetailsPageController.class.getResource(fxmlPath));
+        Parent rootNode;
+
+        try {
+
+            rootNode = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+// 2. sayfayı göster
+
+        Stage stage = new Stage();
+        Scene scene = new Scene(rootNode);
+        stage.setScene(scene);
+        stage.showAndWait();
+
         return geciciList;
 
     }
@@ -438,48 +553,87 @@ public class DetailsPageController implements Initializable {
     }
 
     public static ObservableList<Information> benzerleriBulZipCode(ObservableList<Information> inf, ObservableList<String> arrForZipCodeNameDistinct, int BenzerlikOrani, int threadSayisi) {
+        thread = threadSayisi;
+        long startTime = System.nanoTime();
         String temp;
         ObservableList<Information> geciciList = FXCollections.observableArrayList();
-        System.out.println(BenzerlikOrani);
-        int counter = 0;
-        float benzerlik = 0;
-        //Productun ilk değeri için
-        for (int i = 0; i < arrForZipCodeNameDistinct.size(); i++) {
-            String[] gecici1 = (arrForZipCodeNameDistinct.get(i).split(" "));
-            for (int j = 0; j < inf.size(); j++) {
-                //getproduct alınmış
-                String[] gecici2 = (inf.get(j).getZipCode().split(" "));
-                int max = Math.max(gecici1.length, gecici2.length);
-                int min = Math.min(gecici1.length, gecici2.length);
-                for (int k = 0; k < max; k++) {
-                    for (int l = 0; l < min; l++) {
-                        if (gecici1.length >= gecici2.length) {
-                            if (gecici1[k].equals(gecici2[l])) {
-                                counter++;
-                            }
-                        } else if (gecici2[k].equals(gecici1[l])) {
+        ExecutorService executorService = Executors.newFixedThreadPool(threadSayisi);
+        Future<?> future = executorService.submit(new Runnable() {
+            @Override
+            public void run() {
 
-                            counter++;
+
+                int counter = 0;
+                float benzerlik = 0;
+                //Productun ilk değeri için
+                for (int i = 0; i < arrForZipCodeNameDistinct.size(); i++) {
+                    String[] gecici1 = (arrForZipCodeNameDistinct.get(i).split(" "));
+                    for (int j = 0; j < inf.size(); j++) {
+                        //getproduct alınmış
+                        String[] gecici2 = (inf.get(j).getZipCode().split(" "));
+                        int max = Math.max(gecici1.length, gecici2.length);
+                        int min = Math.min(gecici1.length, gecici2.length);
+                        for (int k = 0; k < max; k++) {
+                            for (int l = 0; l < min; l++) {
+                                if (gecici1.length >= gecici2.length) {
+                                    if (gecici1[k].equals(gecici2[l])) {
+                                        counter++;
+                                    }
+                                } else if (gecici2[k].equals(gecici1[l])) {
+
+                                    counter++;
+                                }
+
+                            }
+                        }
+                        if (counter >= max) counter = max;
+                        benzerlik = ((float) counter / (float) max) * 100;
+                        if (benzerlik >= BenzerlikOrani) {
+                            System.out.println(benzerlik + " " + arrForZipCodeNameDistinct.get(i) + " " + inf.get(j).getZipCode());
+                            CompareDatas record1 = new CompareDatas(arrForZipCodeNameDistinct.get(i), inf.get(j).getZipCode(), (int) benzerlik);
+                            compareData.add(record1);
+
+
+                            // System.out.println(Thread.currentThread().getName());
                         }
 
+                        //  System.out.println((int) benzerlik + " " + arrForProductNameDistinct.get(i) + " " + inf.get(j).getProduct());
+                        counter = 0;
                     }
                 }
-                if (counter >= max) counter = max;
-                benzerlik = ((float) counter / (float) max) * 100;
-                if (benzerlik >= BenzerlikOrani) {
-                    System.out.println(benzerlik + " " + arrForZipCodeNameDistinct.get(i) + " " + inf.get(j).getZipCode());
-                    CompareDatas record1 = new CompareDatas(arrForZipCodeNameDistinct.get(i), inf.get(j).getZipCode(), (int) benzerlik);
-                    compareData.add(record1);
-
-
-                    // System.out.println(Thread.currentThread().getName());
-                }
-
-                //  System.out.println((int) benzerlik + " " + arrForProductNameDistinct.get(i) + " " + inf.get(j).getProduct());
-                counter = 0;
             }
+        });
+        try {
+            // işlem tamamlanana kadar bekle
+            future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime); // nanosaniye cinsinden süre
+        time = (double) duration / 1_000_000_000.0; // saniye cinsinden süre
+
+// 2. sayfa yükleme işlemi
+        String fxmlPath = "/com/mericaltikardes/bigdatamultisearch/second-page.fxml";
+        File file = new File(fxmlPath);
+        FXMLLoader loader = new FXMLLoader(DetailsPageController.class.getResource(fxmlPath));
+        Parent rootNode;
+
+        try {
+
+            rootNode = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+// 2. sayfayı göster
+
+        Stage stage = new Stage();
+        Scene scene = new Scene(rootNode);
+        stage.setScene(scene);
+        stage.showAndWait();
+
         return geciciList;
+
     }
 
     public static HashSet distinctinColumnComplaintId(ObservableList<Information> infs) {
@@ -494,49 +648,88 @@ public class DetailsPageController implements Initializable {
     }
 
     public static ObservableList<Information> benzerleriBulComplaintId(ObservableList<Information> inf, ObservableList<String> arrForComplaintIdNameDistinct, int BenzerlikOrani, int threadSayisi) {
+        thread = threadSayisi;
+        long startTime = System.nanoTime();
         String temp;
         ObservableList<Information> geciciList = FXCollections.observableArrayList();
-        System.out.println(BenzerlikOrani);
-        int counter = 0;
-        float benzerlik = 0;
-        //Productun ilk değeri için
-        for (int i = 0; i < arrForComplaintIdNameDistinct.size(); i++) {
-            String[] gecici1 = (arrForComplaintIdNameDistinct.get(i).split(" "));
-            for (int j = 0; j < inf.size(); j++) {
-                //getproduct alınmış
-                String[] gecici2 = (inf.get(j).getComplaintId().split(" "));
-                int max = Math.max(gecici1.length, gecici2.length);
-                int min = Math.min(gecici1.length, gecici2.length);
-                for (int k = 0; k < max; k++) {
-                    for (int l = 0; l < min; l++) {
-                        if (gecici1.length >= gecici2.length) {
-                            if (gecici1[k].equals(gecici2[l])) {
-                                counter++;
-                            }
-                        } else if (gecici2[k].equals(gecici1[l])) {
 
-                            counter++;
+        ExecutorService executorService = Executors.newFixedThreadPool(threadSayisi);
+        Future<?> future = executorService.submit(new Runnable() {
+            @Override
+            public void run() {
+
+                int counter = 0;
+                float benzerlik = 0;
+                //Productun ilk değeri için
+                for (int i = 0; i < arrForComplaintIdNameDistinct.size(); i++) {
+                    String[] gecici1 = (arrForComplaintIdNameDistinct.get(i).split(" "));
+                    for (int j = 0; j < inf.size(); j++) {
+                        //getproduct alınmış
+                        String[] gecici2 = (inf.get(j).getComplaintId().split(" "));
+                        int max = Math.max(gecici1.length, gecici2.length);
+                        int min = Math.min(gecici1.length, gecici2.length);
+                        for (int k = 0; k < max; k++) {
+                            for (int l = 0; l < min; l++) {
+                                if (gecici1.length >= gecici2.length) {
+                                    if (gecici1[k].equals(gecici2[l])) {
+                                        counter++;
+                                    }
+                                } else if (gecici2[k].equals(gecici1[l])) {
+
+                                    counter++;
+                                }
+
+                            }
+                        }
+                        if (counter >= max) counter = max;
+                        benzerlik = ((float) counter / (float) max) * 100;
+                        if (benzerlik >= BenzerlikOrani) {
+                            System.out.println(benzerlik + " " + arrForComplaintIdNameDistinct.get(i) + " " + inf.get(j).getComplaintId());
+                            CompareDatas record1 = new CompareDatas(arrForComplaintIdNameDistinct.get(i), inf.get(j).getComplaintId(), (int) (benzerlik));
+                            compareData.add(record1);
+
+
+                            // System.out.println(Thread.currentThread().getName());
                         }
 
+                        //  System.out.println((int) benzerlik + " " + arrForProductNameDistinct.get(i) + " " + inf.get(j).getProduct());
+                        counter = 0;
+                        System.out.println(geciciList);
                     }
                 }
-                if (counter >= max) counter = max;
-                benzerlik = ((float) counter / (float) max) * 100;
-                if (benzerlik >= BenzerlikOrani) {
-                    System.out.println(benzerlik + " " + arrForComplaintIdNameDistinct.get(i) + " " + inf.get(j).getComplaintId());
-                    CompareDatas record1 = new CompareDatas(arrForComplaintIdNameDistinct.get(i), inf.get(j).getComplaintId(), (int) (benzerlik));
-                    compareData.add(record1);
-
-
-                    // System.out.println(Thread.currentThread().getName());
-                }
-
-                //  System.out.println((int) benzerlik + " " + arrForProductNameDistinct.get(i) + " " + inf.get(j).getProduct());
-                counter = 0;
-                System.out.println(geciciList);
             }
+        });
+        try {
+            // işlem tamamlanana kadar bekle
+            future.get();
+        } catch (InterruptedException | ExecutionException e) {
+            throw new RuntimeException(e);
         }
+        long endTime = System.nanoTime();
+        long duration = (endTime - startTime); // nanosaniye cinsinden süre
+        time = (double) duration / 1_000_000_000.0; // saniye cinsinden süre
+
+// 2. sayfa yükleme işlemi
+        String fxmlPath = "/com/mericaltikardes/bigdatamultisearch/second-page.fxml";
+        File file = new File(fxmlPath);
+        FXMLLoader loader = new FXMLLoader(DetailsPageController.class.getResource(fxmlPath));
+        Parent rootNode;
+
+        try {
+
+            rootNode = loader.load();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+// 2. sayfayı göster
+
+        Stage stage = new Stage();
+        Scene scene = new Scene(rootNode);
+        stage.setScene(scene);
+        stage.showAndWait();
+
         return geciciList;
+
     }
 
     public static ObservableList<Information> finalBenzerlik = FXCollections.observableArrayList();
