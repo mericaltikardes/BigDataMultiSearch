@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
-
-<AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mericaltikardes.bigdatamultisearch.controller.DetailsPageController">
+<AnchorPane prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.mericaltikardes.bigdatamultisearch.controller.DetailsPageController">
     <children>
         <TableView fx:id="tableView" prefHeight="601.0" prefWidth="600.0">
             <columns>
-                <TableColumn fx:id="colProduct1" prefWidth="150.3999878168106" text="BenzerlikOrani" />
-                <TableColumn fx:id="colProduct2" minWidth="0.0" prefWidth="231.20001220703125" text="Sütun1" />
-                <TableColumn fx:id="colBenzerlik" prefWidth="218.40005493164062" text="Sütun2" />
+                <TableColumn fx:id="colProduct1" prefWidth="150.3999878168106" text="BenzerlikOrani"/>
+                <TableColumn fx:id="colProduct2" minWidth="0.0" prefWidth="231.20001220703125" text="Sütun1"/>
+                <TableColumn fx:id="colBenzerlik" prefWidth="218.40005493164062" text="Sütun2"/>
             </columns>
         </TableView>
-      <TextArea layoutX="658.0" layoutY="45.0" prefHeight="200.0" prefWidth="200.0" />
-      <TextField fx:id="threadCounter" layoutX="664.0" layoutY="71.0" prefHeight="26.0" prefWidth="188.0" text="Thread Sayısı:" />
-      <TextField fx:id="totalTime" layoutX="664.0" layoutY="171.0" prefHeight="26.0" prefWidth="188.0" text="Toplam Süre:" />
+        <TextArea layoutX="658.0" layoutY="45.0" prefHeight="200.0" prefWidth="200.0"/>
+        <TextField fx:id="threadCounter" layoutX="664.0" layoutY="71.0" prefHeight="26.0" prefWidth="188.0"
+                   text="Thread Sayısı:"/>
+        <TextField fx:id="totalTime" layoutX="664.0" layoutY="171.0" prefHeight="26.0" prefWidth="188.0"
+                   text="Toplam Süre:"/>
     </children>
 </AnchorPane>

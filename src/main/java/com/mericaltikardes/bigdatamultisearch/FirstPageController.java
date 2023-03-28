@@ -1,25 +1,22 @@
 package com.mericaltikardes.bigdatamultisearch;
 
-import com.jfoenix.controls.JFXButton;
 import com.mericaltikardes.bigdatamultisearch.controller.DetailsPageController;
 import com.mericaltikardes.bigdatamultisearch.data.Information;
-import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.ResourceBundle;
@@ -46,11 +43,11 @@ public class FirstPageController implements Initializable {
     @FXML
     private ListView<String> liste4;
 
-
+    @FXML
+    private TextField txtThreadSayisiMulti;
 
     @FXML
     public ListView<String> liste;
-
 
     @FXML
     private TextField txtThreadSayisiSingle;
@@ -75,17 +72,7 @@ public class FirstPageController implements Initializable {
 
             }
         }).start();
-//        tableView.setItems(dataList);
-//        liste.getItems().addAll("Product", "Issue", "Company", "State", "ZipCode", "ComplaintId");
-//        liste2.getItems().addAll("Product", "Issue", "Company", "State", "ZipCode", "ComplaintId");
-//        liste3.getItems().addAll("Product", "Issue", "Company", "State", "ZipCode", "ComplaintId");
-//        liste4.getItems().addAll("Product", "Issue", "Company", "State", "ZipCode", "ComplaintId");
-
     }
-
-    @FXML
-    private JFXButton btnBenzerlikThread;
-    private Parent rootNode;
 
     @FXML
     void btnGiris(ActionEvent event) throws IOException {
@@ -124,39 +111,27 @@ public class FirstPageController implements Initializable {
             ObservableList<String> arrForComplaintIdNameDistinct = FXCollections.observableArrayList(complaintIdDistinct);
             DetailsPageController.benzerleriBulComplaintId(dataList, arrForComplaintIdNameDistinct, Integer.parseInt(txtBenzerlikOraniSingle.getText()), singleThreadExecuted);
         }
-
     }
 
 
     public void btnGirisMulti(ActionEvent event) throws IOException {
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("second-page.fxml"));
-        DetailsPageController yeniSayfaController = loader.getController();
+        int multiThreadExecuted = Integer.parseInt(txtThreadSayisiMulti.getText());
         HashSet companyDistinct = new HashSet();
         companyDistinct = DetailsPageController.distinctinColumnCompany(dataList);
         ObservableList<String> arrForCompanyNameDistinct = FXCollections.observableArrayList(companyDistinct);
         DetailsPageController.multiSearch(dataList, liste2.getSelectionModel().getSelectedItems().get(0),
                 txtEsitlikMulti.getText(), Integer.parseInt(txtBenzerlikOraniMulti.getText()),
                 liste3.getSelectionModel().getSelectedItems().get(0),
-                liste4.getSelectionModel().getSelectedItems().get(0));
-        rootNode = loader.load();
-        Stage stage = new Stage();
-        Scene scene = new Scene(rootNode);
-        stage.setScene(scene);
-        stage.showAndWait();
-
+                liste4.getSelectionModel().getSelectedItems().get(0), Integer.parseInt(String.valueOf(multiThreadExecuted)));
     }
 
     public final ObservableList<Information> dataList
             = FXCollections.observableArrayList();
 
     private void readCSV() {
-
-
         String CsvFile = "C:\\Users\\Meriç\\Masaüstü\\kiyas.csv";
         String FieldDelimiter = ";";
-
         BufferedReader br;
-
         try {
             br = new BufferedReader(new FileReader(CsvFile));
 
@@ -167,16 +142,11 @@ public class FirstPageController implements Initializable {
                 Information record = new Information(fields[0], fields[1], fields[2],
                         fields[3], fields[4], fields[5]);
                 dataList.add(record);
-
             }
-
         } catch (FileNotFoundException ex) {
             System.out.println(ex);
         } catch (IOException ex) {
             System.out.println(ex);
         }
-
     }
-
-
 }

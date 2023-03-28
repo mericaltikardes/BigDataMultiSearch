@@ -1,46 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
-
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mericaltikardes.bigdatamultisearch.FirstPageController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0"
+            prefWidth="1280.0" xmlns="http://javafx.com/javafx/18" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.mericaltikardes.bigdatamultisearch.FirstPageController">
     <children>
         <TableView fx:id="tableView" layoutX="-2.0" layoutY="-3.0" prefHeight="759.0" prefWidth="600.0">
             <columns>
-                <TableColumn fx:id="colProduct" prefWidth="75.0" text="Product" />
-                <TableColumn fx:id="colIssue" prefWidth="92.00003051757812" text="Issue" />
-                <TableColumn fx:id="colCompany" prefWidth="91.19998168945312" text="Company" />
-                <TableColumn fx:id="colState" prefWidth="96.79998779296875" text="State" />
-                <TableColumn fx:id="colZipCode" prefWidth="81.60003662109375" text="Zip Code" />
-                <TableColumn fx:id="colComplaintId" prefWidth="164.79998779296875" text="Complaint Id" />
+                <TableColumn fx:id="colProduct" prefWidth="75.0" text="Product"/>
+                <TableColumn fx:id="colIssue" prefWidth="92.00003051757812" text="Issue"/>
+                <TableColumn fx:id="colCompany" prefWidth="91.19998168945312" text="Company"/>
+                <TableColumn fx:id="colState" prefWidth="96.79998779296875" text="State"/>
+                <TableColumn fx:id="colZipCode" prefWidth="81.60003662109375" text="Zip Code"/>
+                <TableColumn fx:id="colComplaintId" prefWidth="164.79998779296875" text="Complaint Id"/>
             </columns>
         </TableView>
-        <TextField fx:id="txtBenzerlikOraniSingle" alignment="CENTER" layoutX="618.0" layoutY="183.0" prefHeight="26.0" prefWidth="266.0" promptText="Benzerlik Oranını Giriniz" />
-        <JFXButton fx:id="btnBenzerlikThread" layoutX="695.0" layoutY="259.0" onAction="#btnGiris" prefHeight="26.0" prefWidth="111.0" style="-fx-background-color: #81c483;" text="GİRİŞ" />
-        <TextField fx:id="txtThreadSayisiSingle" alignment="CENTER" layoutX="618.0" layoutY="219.0" prefHeight="26.0" prefWidth="266.0" promptText="Thread Sayisini Giriniz" />
-        <ListView fx:id="liste" layoutX="636.0" layoutY="20.0" prefHeight="147.0" prefWidth="251.0" />
-        <ListView fx:id="liste2" layoutX="609.0" layoutY="297.0" prefHeight="147.0" prefWidth="172.0" />
-        <ListView fx:id="liste3" layoutX="610.0" layoutY="444.0" prefHeight="147.0" prefWidth="172.0" />
-        <ListView fx:id="liste4" layoutX="601.0" layoutY="599.0" prefHeight="147.0" prefWidth="172.0" AnchorPane.leftAnchor="610.0" AnchorPane.topAnchor="592.0" />
-        <TextField fx:id="txtEsitlikMulti" layoutX="831.0" layoutY="350.0" prefHeight="26.0" prefWidth="174.0" promptText="Eşit Olması Gereken Deger" />
-        <TextField fx:id="txtBenzerlikOraniMulti" layoutX="839.0" layoutY="509.0" prefHeight="26.0" prefWidth="174.0" promptText="Benzerlik Oranı" />
-        <Text fill="#28996c" layoutX="920.0" layoutY="55.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tekli Arama" wrappingWidth="149.0701904296875">
+        <TextField fx:id="txtBenzerlikOraniSingle" alignment="CENTER" layoutX="618.0" layoutY="183.0" prefHeight="26.0"
+                   prefWidth="266.0" promptText="Benzerlik Oranını Giriniz"/>
+        <JFXButton fx:id="btnBenzerlikThread" layoutX="695.0" layoutY="259.0" onAction="#btnGiris" prefHeight="26.0"
+                   prefWidth="111.0" style="-fx-background-color: #81c483;" text="GİRİŞ"/>
+        <TextField fx:id="txtThreadSayisiSingle" alignment="CENTER" layoutX="618.0" layoutY="219.0" prefHeight="26.0"
+                   prefWidth="266.0" promptText="Thread Sayisini Giriniz"/>
+        <ListView fx:id="liste" layoutX="636.0" layoutY="20.0" prefHeight="147.0" prefWidth="251.0"/>
+        <ListView fx:id="liste2" layoutX="609.0" layoutY="297.0" prefHeight="147.0" prefWidth="172.0"/>
+        <ListView fx:id="liste3" layoutX="610.0" layoutY="444.0" prefHeight="147.0" prefWidth="172.0"/>
+        <ListView fx:id="liste4" layoutX="601.0" layoutY="599.0" prefHeight="147.0" prefWidth="172.0"
+                  AnchorPane.leftAnchor="610.0" AnchorPane.topAnchor="592.0"/>
+        <TextField fx:id="txtEsitlikMulti" layoutX="831.0" layoutY="350.0" prefHeight="26.0" prefWidth="174.0"
+                   promptText="Eşit Olması Gereken Deger"/>
+        <TextField fx:id="txtBenzerlikOraniMulti" layoutX="833.0" layoutY="474.0" prefHeight="26.0" prefWidth="174.0"
+                   promptText="Benzerlik Oranı"/>
+        <Text fill="#28996c" layoutX="920.0" layoutY="55.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tekli Arama"
+              wrappingWidth="149.0701904296875">
             <font>
-                <Font size="41.0" />
+                <Font size="41.0"/>
             </font>
         </Text>
-        <Text fx:id="txt2" fill="#28996c" layoutX="820.0" layoutY="629.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Yazdırılması İstenen Sütunu Seçiniz" wrappingWidth="121.33685302734375">
+        <Text fx:id="txt2" fill="#28996c" layoutX="820.0" layoutY="629.0" strokeType="OUTSIDE" strokeWidth="0.0"
+              text="Yazdırılması İstenen Sütunu Seçiniz" wrappingWidth="121.33685302734375">
             <font>
-                <Font size="22.0" />
+                <Font size="22.0"/>
             </font>
         </Text>
-        <Button fx:id="btnBenzerlikMulti" layoutX="985.0" layoutY="614.0" mnemonicParsing="false" onAction="#btnGirisMulti" prefHeight="131.0" prefWidth="101.0" text="Button" />
+        <Button fx:id="btnBenzerlikMulti" layoutX="985.0" layoutY="614.0" mnemonicParsing="false"
+                onAction="#btnGirisMulti" prefHeight="131.0" prefWidth="101.0" text="Button"/>
+        <TextField fx:id="txtThreadSayisiMulti" alignment="CENTER" layoutX="800.0" layoutY="557.0" prefHeight="26.0"
+                   prefWidth="251.0" promptText="Thread Sayisini Giriniz"/>
     </children>
 </AnchorPane>

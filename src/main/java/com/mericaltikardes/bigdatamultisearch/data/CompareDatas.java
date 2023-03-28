@@ -3,7 +3,7 @@ package com.mericaltikardes.bigdatamultisearch.data;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
-public class CompareDatas{
+public class CompareDatas {
     private SimpleStringProperty Product1;
     private SimpleStringProperty Product2;
 
